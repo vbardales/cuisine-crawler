@@ -31,6 +31,10 @@
   background: hotpink;
 }
 
+aside.aside-closed {
+  flex: 0;
+}
+
 @media all and (min-width: 600px) {
   .aside { flex: 1 0 0; }
 }
