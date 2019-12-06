@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>Mes ingrédients à moi (MIAM)</title>
     <link rel="stylesheet" href="index.css" />
   </head>
@@ -7,18 +9,22 @@
     Hello world from front
     <div id="app" class="wrapper">
       <header class="header">Header</header>
-      <article class="main">
-        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-      </article>
-      <folding-aside class-name="aside-1">
+      <viewer class="main"></viewer>
+      <folding-aside class="aside-1">
         Aside 1
+        <socket-manager />
       </folding-aside>
-      <folding-aside class-name="aside-2">
+      <folding-aside class="aside-2">
         Aside 2
       </folding-aside>
       <footer class="footer">Footer</footer>
     </div>
+    <script src="lib/socket.io-client/dist/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="services/url.js"></script>
+    <script src="components/viewer/index.js"></script>
+    <script src="components/foldingAside/index.js"></script>
+    <script src="components/socketManager/index.js"></script>
     <script src="index.js"></script>
   </body>
 </html>

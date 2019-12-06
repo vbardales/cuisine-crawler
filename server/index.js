@@ -8,6 +8,7 @@ var classifier = new natural.BayesClassifier(PorterStemmerRu);
 const Hapi = require('@hapi/hapi');
 const path = require('path');
 const Inert = require('inert');
+const socketIO = require('socket.io');
 
 const init = async () => {
   const frontServer = Hapi.server({
@@ -31,12 +32,37 @@ const init = async () => {
 
   frontServer.route({
     method: 'GET',
+    path: '/lib/{param*}',
+    handler: {
+      directory: {
+        path: path.join(__dirname, '..', 'node_modules'),
+      },
+    },
+  });
+
+  frontServer.route({
+    method: 'GET',
     path: '/{param*}',
     handler: {
       directory: {
         path: path.join(__dirname, '..', 'client'),
       },
     },
+  });
+
+
+  const io = socketIO(backServer.listener);
+  io.on('connection', function (socket) {
+    console.log('Connected');
+
+    socket.emit('joined');
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected');
+    });
+
+    //socket.on()
+    //socket.emit()
   });
 
   await Promise.all([
