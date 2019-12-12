@@ -1,30 +1,38 @@
 <template>
 <div id="socket-manager">
-  Coucou c'est nous
-  <p v-if="!connected">Not yet connected</p>
-  <p v-if="connected">Ready</p>
+  <div v-if="!connected">
+    <p>Not yet connected</p>
+    <button @click="connect">Connect?</button>
+  </div>
+  <div v-if="connected">
+    <p>Ready</p>
+    <button @click="disconnect">Disconnect?</button>
+  </div>
 </div>
 </template>
 
 <script>
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:3000');
-
 export default {
   name: 'socket-manager',
 
   data() {
     return {
-      connected: false,
+      connected: false,
     };
   },
 
+  methods: {
+    connect: function() {
+      this.$url.start();
+    },
+    disconnect: function() {
+      this.$url.stop();
+    },
+  },
+
   created() {
-    socket.on('joined', (data) => {
-      console.log('Joined');
-      this.connected = true;
-    });
+    this.$url.on('connected', () => this.connected = true);
+    this.$url.on('disconnected', () => this.connected = false);
   },
 };
 </script>

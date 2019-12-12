@@ -1,9 +1,9 @@
 <template>
 <aside
   class="aside"
-  v-bind:class="{ 'aside-closed': isClosed, [className]: true }"
+  :class="{ 'aside-closed': isClosed, [className]: true }"
 >
-  <button v-on:click="isClosed = !isClosed">Toggle</button>
+  <button @click="isClosed = !isClosed">Toggle</button>
   <slot></slot>
 </aside>
 </template>
@@ -14,10 +14,8 @@ export default {
 
   props: ['className'],
 
-  data() {
-    return {
-      isClosed: true,
-    };
-  },
+  data: () => ({
+    isClosed: true,
+  }),
 };
 </script>
