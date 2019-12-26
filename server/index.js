@@ -9,11 +9,15 @@ const Hapi = require('@hapi/hapi');
 const path = require('path');
 const Inert = require('inert');
 const socketIO = require('socket.io');
+const PageManager = require('./components/pageManager').default;
 
 const init = async () => {
   const frontServer = Hapi.server({
     port: 8080,
     host: 'localhost',
+    state: {
+      ignoreErrors: true
+    },
   });
   const backServer = Hapi.server({
     port: 3000,
@@ -32,16 +36,6 @@ const init = async () => {
 
   frontServer.route({
     method: 'GET',
-    path: '/lib/{param*}',
-    handler: {
-      directory: {
-        path: path.join(__dirname, '..', 'node_modules'),
-      },
-    },
-  });
-
-  frontServer.route({
-    method: 'GET',
     path: '/{param*}',
     handler: {
       directory: {
@@ -50,19 +44,45 @@ const init = async () => {
     },
   });
 
+  const pageManager = new PageManager();
 
   const io = socketIO(backServer.listener);
-  io.on('connection', function (socket) {
-    console.log('Connected');
-
+  io.on('connection', async function (socket) {
+    console.log('Connected', socket.id);
     socket.emit('joined');
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected');
+    pageManager.on('next', async () => {
+      socket.page = await pageManager.get();
+
+      socket.questionListener = async () => {
+        socket.emit('question', {
+          type: 'url',
+          url: socket.page.url,
+          body: socket.page.content,
+        });
+
+        socket.once('answer', (answer) => {
+          if (answer.url !== socket.page.url) {
+            return;
+          }
+
+          socket.page.answer(answer);
+        });
+      };
+      socket.page.on('question', socket.questionListener);
+
+      await socket.page.process();
     });
 
-    //socket.on()
-    //socket.emit()
+
+    pageManager.setUrl('https://www.marmiton.org/');
+    await pageManager.start();
+
+    socket.on('disconnect', async () => {
+      console.log('Disconnected', socket.id);
+      await pageManager.stop();
+      socket.page && socket.page.removeListener('question', socket.questionListener);
+    });
   });
 
   await Promise.all([
